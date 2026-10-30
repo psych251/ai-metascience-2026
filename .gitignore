@@ -1,0 +1,12 @@
+# rendered output: regenerate with quarto render
+writeup/*.html
+writeup/*_files/
+writeup/.quarto/
+.quarto/
+.Rhistory
+.Rproj.user/
+.DS_Store
+
+# local course materials and papers (not for a public repo)
+course_materials/
+original_papers/

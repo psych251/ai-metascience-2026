@@ -1,0 +1,562 @@
+---
+title: "Do best-practices extensions improve student replications? Psych 251 class metascience, 2026"
+subtitle: "Planning document → preregistration → report"
+author: "Michael C. Frank and the Psych 251 (Autumn 2026) metascience authors"
+date: today
+date-format: long
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: false
+    embed-resources: true
+    code-fold: true
+    code-summary: "Show code"
+    theme: cosmo
+execute:
+  warning: false
+  message: true
+---
+
+<!--
+This one file is the plan now, becomes the class-level preregistration (registered on OSF before
+the first Phase 2 launch), and then the report. Sections that are post-data say so; like the
+student report template, it must render with no data, with Phase 1 data only, and with both
+phases. Analysis code runs on a simulated class until real data are extracted.
+-->
+
+```{r}
+#| label: setup
+#| include: false
+library(tidyverse)
+set.seed(251)
+```
+
+::: {.callout-important icon=false}
+## Status: draft plan, not registered
+
+Target: register on OSF by **Friday November 13, 2026**, before the first Phase 2 launch (student
+extension preregistrations are due Sunday November 15; launch on approval the week of November
+16). Items marked **[D*n*]** are open decisions, collected in [Decision points](#decision-points).
+:::
+
+# AI use statement
+
+| Tool and model | What it was used for | How the output was checked |
+|---|---|---|
+| Claude Code | First draft of this planning document's structure, text and analysis code, including the sensitivity simulation; read Boyce et al. (2024) and the `langcog/251-rescue-projects` code to match its definitions | *To be completed: MCF review of every section and of the simulation* |
+
+# Overview
+
+In Autumn 2026, every Psych 251 student replicates a published experiment (Phase 1) and then runs
+a second version of it (Phase 2). On the default track, Phase 2 is a **best-practices
+modification**: one to three changes drawn from Experimentology (measurement, design, sample,
+instructions and checks, analysis), with everything else held constant. If Phase 1 failed this is a
+**rescue**; if it succeeded it is an **upgrade**. Students who opt in to the metascience project
+receive additional participant budget, have their projects analysed here, and are authors on the
+resulting paper.
+
+We ask whether these extensions change what a replication finds.
+
+- **RQ1, replication success.** How often does Phase 2 replicate the original finding, for rescues
+  and for upgrades, judged by independent raters?
+- **RQ2, effect size.** Is the Phase 2 effect, expressed as a ratio to the original effect, larger
+  than the Phase 1 effect?
+- **Secondary: precision.** How much smaller is the Phase 2 standard error than Phase 1's, and how
+  much of that is explained by sample size alone?
+- **Context.** How do the 2026 rescues compare with the 17 rescues in Boyce et al. (2024)? This is
+  descriptive only (see [Comparison with Boyce et al. (2024)](#comparison-boyce)).
+
+# Background
+
+- **Boyce, Mathur & Frank (2023).** 176 Psych 251 replications over 11 years; mean subjective
+  replication score 49%; 76/176 (43%) scored mostly or fully replicated (≥ .75).
+- **Boyce et al. (2024).** 17 "rescues" of failed class replications, run by a different student in
+  a later year. 5/17 (29%, bootstrapped 95% CI 12%–53%) mostly or fully replicated; every rescue
+  estimate was smaller than the original. The largest (post hoc) correlates of rescue success were
+  a small first-replication sample and a large rescue-to-first-replication sample ratio (both
+  *r* = .49). Outcomes, rating procedure and effect-size conversions are in
+  `langcog/251-rescue-projects`; we reuse them here wherever possible.
+
+What is different in 2026:
+
+| | Boyce et al. (2024) | This project |
+|---|---|---|
+| Who runs the second study | A different student, one or more years later | The same student, about two weeks later |
+| Which projects | Failed replications only (score ≤ .5) | All opted-in Track 1 projects: rescues **and** upgrades |
+| Changes allowed | Fix plausible causes of failure | 1–3 tagged best-practices changes, everything else identical |
+| Implementation | Student-built | Agent-assisted, from a common template (jsPsych + Firebase) |
+| Budget | Class budget | Additional budget for opted-in projects |
+
+# Design
+
+## Projects
+
+- **Population.** Students enrolled in Psych 251, Autumn 2026, who opt in to the metascience
+  project. Opting in is what makes a project part of this study; projects that are not opted in are
+  ordinary course projects and are not analysed.
+- **Track 2 (scientific extension) projects are excluded entirely**, whether or not the student
+  opted in.
+- **Project-level exclusions [D1].** A project is excluded if Phase 2 was not run, or if the key
+  statistic cannot be computed for the original, Phase 1 or Phase 2. Every excluded project is
+  listed with its reason.
+- **Expected number.** About 20 students are enrolled; we expect most to opt in, so *k* ≈ 15–20.
+  The sensitivity analysis below covers *k* = 10–30.
+
+## Rescue or upgrade
+
+Each project is classified from its Phase 1 result before Phase 2 data exist **[D2]**. Proposed:
+the raters' Phase 1 subjective score (below), with < .75 = rescue and ≥ .75 = upgrade, matching
+the success threshold in Boyce et al. (2024). The student's declared track (in their report at M4)
+is recorded too, and any disagreement is reported.
+
+## Timeline
+
+| Date (2026) | Event | Relevance |
+|---|---|---|
+| Nov 2 | Phase 1 data due | |
+| Nov 4, 6 | Midterm presentations (Phase 1 results) | Phase 1 subjective ratings **[D3]** |
+| Nov 8 | M4: replication report + extension proposal | Declared track; Changes table |
+| **Nov 13** | **This document registered on OSF** | Before any Phase 2 launch |
+| Nov 15 | M5: student extension preregistrations | |
+| week of Nov 16 | Phase 2 data collection | |
+| Nov 30 | Lecture: first look at class metascience results | Descriptive only; extraction not final |
+| Dec 2, 4 | Final presentations | Phase 2 subjective ratings |
+| Dec 10 | Final reports | Effect extraction begins from committed data |
+
+# Measures
+
+## Subjective replication score (RQ1)
+
+- Scale and procedure from Boyce et al. (2024): each phase is rated on 0 / .25 / .5 / .75 / 1 for
+  how well it replicates the original on the key result, considering direction, magnitude and
+  significance together rather than any single cutoff. **Success = ≥ .75** ("mostly" or "fully").
+- **Raters.** Two of the three course TAs, independently, for each project. A project's own TA
+  does not rate it **[D4]**. Disagreements greater than .25 are resolved by discussion; we report
+  the Spearman correlation between raters before resolution (Boyce et al., 2024: .9).
+- **Materials rated.** The student's presentation slides (which show the original and the
+  replication side by side) and, if needed, the Key statistics table in the report.
+- **When.** Proposed **[D3]**: Phase 1 is rated from the midterm presentation, before any Phase 2
+  data exist, and Phase 2 from the final presentation. This keeps Phase 1 ratings uncontaminated by
+  Phase 2, and makes the rescue/upgrade classification fixed before Phase 2.
+- Student self-ratings (if collected) are reported separately and are not an outcome.
+
+## Key effect and its extraction
+
+- **Key effect.** The single key analysis of interest in the student's Phase 1 preregistration.
+  Phase 2 uses the same key analysis unless the Changes table lists an Analysis change; in that case
+  the effect is computed both ways where possible, and the preregistered Phase 1 version is primary.
+- **Extraction by re-running the student's pipeline.** For Phase 1 and Phase 2 we re-run the
+  analysis in the student's report from the anonymized data committed to their repository
+  (`data/raw/<experiment id>/`), with agent assistance and human verification, and take the key
+  test statistic from that run. We also record the value the student reported. A mismatch is
+  recorded and resolved, and the rate of mismatches is reported as a by-product: it is a
+  computational reproducibility check of the class reports.
+- **Original effect.** From the original paper, as coded by the student in the report's
+  `original-study` chunk, checked by a second person.
+
+## Effect sizes
+
+- **Metric.** Standardized mean difference (SMD), using the conversions in
+  `langcog/251-rescue-projects/code/helper/parse_stats.R` so that the numbers are comparable with
+  Boyce et al. (2023, 2024). Signs are aligned so that the original effect is positive and an
+  effect in the opposite direction is negative.
+- **Standardizer caveat [D5].** Those conversions give *d* for between-participant tests and
+  *d*<sub>z</sub> for within-participant tests. A Phase 2 that changes the design (for example
+  between → within) therefore changes the standardizer as well as the estimate. Proposed: in that
+  case also compute Phase 2 with the Phase 1 standardizer where the data allow, use that as primary,
+  and flag the project.
+- **Effect size ratio (primary for RQ2).** For each phase, *r* = SMD<sub>phase</sub> /
+  SMD<sub>original</sub>. *r* = 1 means the original effect size was recovered; *r* = 0 means no
+  effect; *r* < 0 means the opposite direction.
+- **Precision (secondary).** SE ratio = SE<sub>Phase 2</sub> / SE<sub>Phase 1</sub> of the SMD,
+  compared with the ratio expected from sample size alone, √(*N*<sub>1</sub>/*N*<sub>2</sub>). The
+  part of the precision gain not explained by *N* is attributable to the other changes.
+- **Statistical consistency (secondary, as in Boyce et al. 2024).** *p*-original (Mathur &
+  VanderWeele, 2020) with imputed heterogeneity τ = .21 SMD, for original vs Phase 1, original vs
+  Phase 2, and original vs both phases combined.
+
+## Project covariates
+
+- The Boyce et al. (2023, 2024) set: subfield, within/between design, single vignette, number of
+  trials, open data, open materials, switch to online, original and replication sample sizes.
+- The Phase 2 change categories from each report's Changes table (Measurement, Trials, Design,
+  Checks, Instructions, Sample, Analysis), and the Phase 2 / Phase 1 sample-size ratio.
+- Exploratory covariates in [Exploratory measures](#exploratory).
+
+# Analysis plan
+
+```{r}
+#| label: analysis-functions
+#| code-summary: "Show the analysis code (runs on simulated data until real data exist)"
+
+# DerSimonian-Laird random-effects estimate of the mean and between-project variance.
+dl_meta <- function(y, se) {
+  w     <- 1 / se^2
+  mu_fe <- sum(w * y) / sum(w)
+  q     <- sum(w * (y - mu_fe)^2)
+  tau2  <- max(0, (q - (length(y) - 1)) / (sum(w) - sum(w^2) / sum(w)))
+  w_re  <- 1 / (se^2 + tau2)
+  list(mu = sum(w_re * y) / sum(w_re), tau2 = tau2)
+}
+
+# Expected Phase 2 SMD if Phase 2 changed nothing: the Phase 1 estimate shrunk toward the class
+# mean in proportion to its noise (empirical Bayes). Rescues were selected for low Phase 1
+# estimates, so this is what they would regress to with no real improvement.
+eb_predict <- function(d1, se1) {
+  m <- dl_meta(d1, se1)
+  m$mu + m$tau2 / (m$tau2 + se1^2) * (d1 - m$mu)
+}
+
+boot_prop_ci <- function(x, B = 2000) {
+  if (length(x) == 0) return(c(NA_real_, NA_real_))
+  quantile(replicate(B, mean(sample(x, replace = TRUE))), c(.025, .975), names = FALSE)
+}
+
+mean_ci <- function(x) {
+  x <- x[!is.na(x)]
+  if (length(x) < 2) return(tibble(n = length(x), mean = mean(x), low = NA_real_, high = NA_real_))
+  tt <- t.test(x)
+  tibble(n = length(x), mean = mean(x), low = tt$conf.int[1], high = tt$conf.int[2])
+}
+
+# One row per project: type, d_orig, d1, se1, n1, d2, se2, n2, score1, score2.
+add_ratios <- function(proj) {
+  proj |>
+    mutate(r1 = d1 / d_orig, r2 = d2 / d_orig,
+           change = r2 - r1,
+           change_eb = (d2 - eb_predict(d1, se1)) / d_orig,
+           se_ratio = se2 / se1,
+           se_ratio_from_n = sqrt(n1 / n2))
+}
+
+# RQ1: Phase 2 success rate by type, with bootstrapped 95% CIs as in Boyce et al. (2024).
+success_table <- function(proj) {
+  proj |>
+    group_by(type) |>
+    summarise(Projects = n(),
+              `Phase 2 success` = sum(score2 >= .75),
+              Rate = mean(score2 >= .75),
+              ci = list(boot_prop_ci(score2 >= .75)),
+              `Mean Phase 2 score` = round(mean(score2), 2), .groups = "drop") |>
+    mutate(`95% CI` = map_chr(ci, ~ sprintf("[%.0f%%, %.0f%%]", 100 * .x[1], 100 * .x[2])),
+           Rate = scales::percent(Rate, accuracy = 1)) |>
+    select(-ci)
+}
+
+# RQ2: change in effect size ratio (Phase 2 minus Phase 1), all projects and by type. The pooled
+# estimate is the confirmatory one; by type, the empirical-Bayes-corrected change is the one to read.
+ratio_table <- function(proj) {
+  bind_rows(
+    mean_ci(proj$change) |> mutate(Projects = "All", Estimate = "Change in ratio"),
+    proj |> group_by(Projects = type) |> group_modify(~ mean_ci(.x$change)) |>
+      ungroup() |> mutate(Estimate = "Change in ratio"),
+    proj |> group_by(Projects = type) |> group_modify(~ mean_ci(.x$change_eb)) |>
+      ungroup() |> mutate(Estimate = "Change beyond regression to the mean")
+  ) |>
+    transmute(Projects, Estimate, k = n, Mean = sprintf("%.2f", mean),
+              `95% CI` = if_else(is.na(low), "", sprintf("[%.2f, %.2f]", low, high)))
+}
+
+ratio_plot <- function(proj) {
+  proj |>
+    select(project, type, `Phase 1` = r1, `Phase 2` = r2) |>
+    pivot_longer(c(`Phase 1`, `Phase 2`), names_to = "Phase", values_to = "ratio") |>
+    ggplot(aes(x = Phase, y = ratio, group = project)) +
+    geom_hline(yintercept = 0, colour = "grey50") +
+    geom_hline(yintercept = 1, linetype = "dashed", colour = "grey50") +
+    geom_line(colour = "grey70") +
+    geom_point(aes(colour = Phase), size = 2) +
+    facet_wrap(~ type) +
+    scale_colour_manual(values = c("#1E6E76", "#B8792A"), guide = "none") +
+    labs(x = NULL, y = "Effect size ratio (replication SMD / original SMD)") +
+    theme_minimal(base_size = 12)
+}
+```
+
+## RQ1: replication success
+
+- **Primary estimate.** For rescues: the proportion with a Phase 2 score ≥ .75 (the **rescue
+  rate**), with a bootstrapped 95% CI, as in Boyce et al. (2024). For upgrades: the proportion whose
+  Phase 2 is still ≥ .75 (the **retention rate**).
+- Also reported: mean Phase 2 score by type; the cross-tabulation of Phase 1 by Phase 2 success;
+  the statistical criterion (Phase 2 key test significant at α = .05 in the original direction).
+- No hypothesis test. With an expected 5–10 rescues the CI will be wide (e.g., 2/8 gives roughly
+  0%–56%), and the estimate is reported as such.
+
+## RQ2: effect size ratio
+
+- **Primary estimate and test.** The mean, across all included projects, of the change in effect
+  size ratio, *r*<sub>2</sub> − *r*<sub>1</sub>, with a 95% CI. Confirmatory hypothesis: the mean
+  change is greater than 0 (one-sided *t* test, α = .05) **[D6]**.
+- **Why pooled, and the regression-to-the-mean problem.** Rescues are rescues *because* their
+  Phase 1 estimate came out low, and upgrades because theirs came out high. Even if Phase 2
+  changed nothing, rescue estimates would rise and upgrade estimates fall on average. Pooled over
+  all projects this selection cancels, so the pooled change is an unbiased test of whether Phase 2
+  changes the effect. Within type it does not cancel. By type, we therefore report the change
+  relative to an empirical-Bayes prediction of Phase 2 from Phase 1 (the Phase 1 estimate shrunk
+  toward the class mean in proportion to its standard error), alongside the raw change. The
+  simulation below shows the size of the bias and that the correction removes it.
+- **Interpretation.** Changes that make measurement more reliable are expected to *increase* the
+  standardized effect, because measurement error inflates the standardizer. Changes to sample size
+  alone are not: they change precision, not the expected effect. The change-category analysis
+  below (exploratory) looks at this directly.
+- **Robustness.** Ratios are unstable when the original SMD is small. We report the median change
+  and a version excluding projects with |SMD<sub>original</sub>| < .2 **[D7]**, and the same
+  analysis on the SMD scale (*d*<sub>2</sub> − *d*<sub>1</sub>, random-effects meta-analysis).
+
+## Secondary: precision
+
+- Mean log SE ratio (Phase 2 / Phase 1) with 95% CI, and the mean log of the ratio expected from
+  sample size alone. Their difference estimates the precision gain from changes other than *N*.
+
+## Comparison with Boyce et al. (2024) {#comparison-boyce}
+
+- **Registered as descriptive only: no quantitative comparison is possible.** The samples differ in
+  who ran the rescue, how long after the first replication, what changes were allowed, the budget,
+  and the tools, and both samples are small and self-selected. We show the 2026 rescue rate and
+  effect size ratios next to the 2024 values in one table and one figure, and discuss differences
+  qualitatively.
+
+```{r}
+#| label: boyce-2024
+boyce_2024 <- tibble(
+  Study = "Boyce et al. (2024) rescues",
+  Projects = 17,
+  `Mostly or fully replicated (≥ .75)` = "5 (29%)",
+  `95% CI` = "[12%, 53%]",
+  Source = "Results, 'Overall replication rate'"
+)
+knitr::kable(boyce_2024, caption = "Reference values from Boyce et al. (2024). The 2026 rescue row is added when data exist.")
+```
+
+## Exploratory analyses {#exploratory}
+
+All exploratory and labelled as such; *k* is too small for confirmatory moderator tests.
+
+1. **Change category.** RQ1 and RQ2 outcomes by the categories in each project's Changes table
+   (projects can have more than one), and by the Phase 2 / Phase 1 sample-size ratio, the strongest
+   correlate in Boyce et al. (2024).
+2. **Textual ambiguity of the original procedure** as a covariate of Phase 1 and Phase 2 success
+   and of the effect size ratio **[D8]**. Candidate measures: (a) the number of rows in the
+   report's "Differences from the original study" table plus the choices listed in its Analysis
+   plan as not specified by the original; (b) an agent-coded count of procedural details a
+   replicator would need but the original Methods does not give, checked by a human coder on a
+   subset. (a) is free and already in every report; (b) is closer to the construct.
+3. **Agent correctness check of the original papers.** An agent checks each original paper's
+   reported statistics for internal consistency (test statistic, df and *p*; GRIM/GRIMMER-style
+   checks of means and SDs where *N* is known) and lists flagged issues; a TA or the student
+   verifies every flag. Outcome: the number of verified issues per paper, reported descriptively and
+   as a covariate of replication success **[D9]**.
+4. The Boyce et al. (2023, 2024) project covariates, as correlations with Phase 1 and Phase 2
+   scores.
+
+## Measures that need a separate protocol (not part of this registration)
+
+Each of these makes students, not their experiments, the object of study. Each needs a new IRB
+protocol and sign-off from the Stanford student research committee before anything is collected,
+and participation must not affect grades. They are listed here so the plan is complete; none will be
+collected under this registration **[D10]**.
+
+| Measure | Idea | Main concerns |
+|---|---|---|
+| AI attitudes survey | Post-quarter survey of attitudes toward AI agents in research | No pre-measure is possible now; consent separate from course |
+| AI interaction logs | Analyse students' agent transcripts from the project | Uneven export across tools; logs can contain participant data or keys; consent and anonymization |
+| Personalized understanding quizzes | Low-stakes quiz generated from each student's own repository, testing whether they understand what they did | Must be ungraded or very low stakes; question validity; consent |
+
+# Sensitivity analysis
+
+How informative is RQ2 with the number of projects we expect, and how large is the
+regression-to-the-mean bias by type? We simulate classes of *k* projects. Original SMDs are drawn
+from 0.3–1.0; each project's true Phase 1 effect is the original times a factor drawn from
+N(0.5, 0.35), so replications recover about half the original effect on average, with
+heterogeneity; Phase 1 total *N* is 40–150. A project is a rescue if its Phase 1 estimate is not
+significant in the original direction (a stand-in for the subjective score). Phase 2 has a standard
+error 1/1.4 of Phase 1's, and its true effect is the Phase 1 true effect times (1 + *g*), where *g*
+is the true gain in the effect size ratio from better methods.
+
+```{r}
+#| label: simulation
+sim_once <- function(k, gain, precision_gain = 1.4) {
+  d_orig <- runif(k, 0.3, 1.0)
+  delta  <- d_orig * rnorm(k, 0.5, 0.35)
+  n1     <- sample(40:150, k, replace = TRUE)
+  se1    <- 2 / sqrt(n1)
+  d1     <- rnorm(k, delta, se1)
+  rescue <- d1 / se1 < qnorm(0.975)
+  d2     <- rnorm(k, delta * (1 + gain), se1 / precision_gain)
+  naive     <- (d2 - d1) / d_orig
+  corrected <- (d2 - eb_predict(d1, se1)) / d_orig
+  c(pooled            = mean(naive),
+    rescue_naive      = mean(naive[rescue]),
+    upgrade_naive     = mean(naive[!rescue]),
+    rescue_corrected  = mean(corrected[rescue]),
+    upgrade_corrected = mean(corrected[!rescue]),
+    reject            = t.test(naive, alternative = "greater")$p.value < .05,
+    n_rescue          = sum(rescue))
+}
+
+sims <- expand_grid(k = c(10, 20, 30), gain = c(0, 0.15, 0.3), rep = 1:1000) |>
+  mutate(out = map2(k, gain, ~ as_tibble_row(sim_once(.x, .y)))) |>
+  unnest(out)
+```
+
+```{r}
+#| label: sim-power
+sims |>
+  group_by(k, gain) |>
+  summarise(`Rescues (mean)` = round(mean(n_rescue), 1),
+            `P(reject), pooled test` = scales::percent(mean(reject), accuracy = 1),
+            `SD of pooled estimate` = sprintf("%.2f", sd(pooled)), .groups = "drop") |>
+  rename(`Projects (k)` = k, `True gain in ratio (g)` = gain) |>
+  knitr::kable(caption = "Rejection rate of the pooled one-sided test of RQ2 (false-positive rate when g = 0, power otherwise), from 1,000 simulated classes per cell.")
+
+sim_summary <- sims |>
+  group_by(k, gain) |>
+  summarise(power = mean(reject), sd = sd(pooled),
+            rescue_naive = mean(rescue_naive, na.rm = TRUE),
+            upgrade_naive = mean(upgrade_naive, na.rm = TRUE),
+            rescue_corrected = mean(rescue_corrected, na.rm = TRUE), .groups = "drop")
+s20  <- filter(sim_summary, k == 20, gain == 0.3)
+s20n <- filter(sim_summary, k == 20, gain == 0)
+```
+
+**What this means.** With 20 projects, the pooled test has
+`r scales::percent(s20$power, accuracy = 1)` power to detect a true gain of 0.3 in the effect size
+ratio (for example, from recovering 50% of the original effect to 65%), and the 95% CI on the pooled
+change will be roughly ±`r sprintf("%.2f", 1.96 * s20$sd)`. RQ2 is therefore best read as an
+estimate with a wide interval rather than a decisive test, and the registration should say so.
+When Phase 2 changes nothing, the raw change averages
+`r sprintf("%+.2f", s20n$rescue_naive)` for rescues and `r sprintf("%+.2f", s20n$upgrade_naive)`
+for upgrades from selection alone; the empirically corrected change for rescues averages
+`r sprintf("%+.2f", s20n$rescue_corrected)`.
+
+```{r}
+#| label: fig-rtm
+#| fig-cap: "Estimated change in effect size ratio by type, in simulated classes of 20 projects where Phase 2 changes nothing (g = 0). The raw change is biased upward for rescues and downward for upgrades by selection alone; the change beyond the empirical-Bayes prediction is close to zero for both. The pooled raw change is also unbiased."
+#| fig-width: 8
+#| fig-height: 3.5
+sims |>
+  filter(k == 20, gain == 0) |>
+  select(rescue_naive, upgrade_naive, rescue_corrected, upgrade_corrected) |>
+  pivot_longer(everything(), names_to = c("type", "estimate"), names_sep = "_") |>
+  mutate(type = str_to_title(type),
+         estimate = factor(estimate, c("naive", "corrected"),
+                           c("Raw change", "Change beyond regression to the mean"))) |>
+  ggplot(aes(x = value, fill = estimate)) +
+  geom_vline(xintercept = 0, colour = "grey40") +
+  geom_density(alpha = 0.5, colour = NA, na.rm = TRUE) +
+  facet_wrap(~ type) +
+  scale_fill_manual(values = c("grey55", "#1E6E76")) +
+  labs(x = "Mean change in effect size ratio (Phase 2 − Phase 1)", y = NULL, fill = NULL) +
+  theme_minimal(base_size = 12) +
+  theme(legend.position = "top", axis.text.y = element_blank())
+```
+
+# Results
+
+```{r}
+#| label: load-data
+#| include: false
+# Real data: one row per project, built from data/extracted/effects.csv and data/ratings.csv once
+# extraction is done. Until then the results below run on one simulated class and say so.
+projects_path <- file.path("..", "data", "extracted", "projects.csv")
+have_data <- file.exists(projects_path)
+
+if (have_data) {
+  proj <- read_csv(projects_path, show_col_types = FALSE) |> add_ratios()
+} else {
+  k <- 18
+  d_orig <- runif(k, 0.3, 1.0); delta <- d_orig * rnorm(k, 0.5, 0.35)
+  n1 <- sample(40:150, k, TRUE); n2 <- round(n1 * runif(k, 1, 2.5))
+  se1 <- 2 / sqrt(n1); se2 <- 2 / sqrt(n2)
+  d1 <- rnorm(k, delta, se1); d2 <- rnorm(k, delta * 1.15, se2)
+  rate <- function(d, se) case_when(d / se > 2.5 ~ 1, d / se > 1.96 ~ .75, d > 0 ~ .25, TRUE ~ 0)
+  proj <- tibble(project = sprintf("sim%02d", 1:k), d_orig, d1, se1, n1, d2, se2, n2,
+                 score1 = rate(d1, se1), score2 = rate(d2, se2)) |>
+    mutate(type = if_else(score1 >= .75, "Upgrade", "Rescue")) |>
+    add_ratios()
+}
+```
+
+```{r}
+#| label: data-notice
+#| echo: false
+#| results: asis
+if (!have_data) {
+  cat("::: {.callout-warning icon=false}\n",
+      "## Simulated data\n\n",
+      "No extracted project data yet (`data/extracted/projects.csv`). **Everything in this section ",
+      "is computed from one simulated class of ", nrow(proj), " projects** to check that the ",
+      "analysis code runs end to end. None of these numbers are results.\n",
+      ":::\n", sep = "")
+}
+```
+
+## RQ1: replication success
+
+```{r}
+#| label: rq1
+success_table(proj) |>
+  rename(Type = type) |>
+  knitr::kable(caption = "Phase 2 replication success (subjective score ≥ .75) by type.")
+```
+
+## RQ2: effect size ratio
+
+```{r}
+#| label: rq2
+ratio_table(proj) |>
+  knitr::kable(caption = "Change in effect size ratio, Phase 2 minus Phase 1. The pooled row is the confirmatory estimate.")
+
+pooled_test <- t.test(proj$change, alternative = "greater")
+```
+
+Pooled one-sided test: *t*(`r pooled_test$parameter`) = `r sprintf("%.2f", pooled_test$statistic)`,
+*p* = `r format.pval(pooled_test$p.value, digits = 2, eps = 0.001)`.
+
+```{r}
+#| label: fig-ratios
+#| fig-cap: "Effect size ratio (replication SMD / original SMD) for Phase 1 and Phase 2 of each project. The dashed line is the original effect size; the solid line is no effect."
+#| fig-width: 8
+#| fig-height: 4
+ratio_plot(proj)
+```
+
+## Secondary: precision
+
+```{r}
+#| label: precision
+proj |>
+  summarise(Projects = n(),
+            `Observed SE ratio (geometric mean)` = sprintf("%.2f", exp(mean(log(se_ratio)))),
+            `Expected from N alone` = sprintf("%.2f", exp(mean(log(se_ratio_from_n))))) |>
+  knitr::kable(caption = "Phase 2 / Phase 1 standard error of the key SMD.")
+```
+
+# Data and code
+
+- `data/extracted/effects.csv`: one row per project × study (original, Phase 1, Phase 2): project
+  repository, test description, raw test statistic, *N*, within/between, same direction, source
+  (pipeline re-run or reported), SMD, SE.
+- `data/ratings.csv`: one row per project × phase × rater: score, date, materials rated.
+- `data/extracted/projects.csv`: one row per included project, built from the two files above.
+- Student repositories are public under the psych251 GitHub organization. Which students opted in
+  is recorded privately until the author list is public **[D11]**.
+
+# Decision points {#decision-points}
+
+| | Decision | Options | Proposed | Status |
+|---|---|---|---|---|
+| D1 | Project-level exclusions | As above; also exclude if Phase 2 deviates from its preregistration in a way that changes the key test? | As above, plus list and justify any others before unblinding | Open |
+| D2 | Rescue vs upgrade classifier | Raters' Phase 1 score; student's declared track; Phase 1 significance | Raters' Phase 1 score (≥ .75 = upgrade); report disagreements | Open |
+| D3 | When raters score each phase | Both at final presentations; Phase 1 at midterms and Phase 2 at finals | Phase 1 at midterms (Nov 4, 6), so it is fixed before Phase 2 | Open, **needed by Nov 4** |
+| D4 | Rater assignment | Any two TAs; two TAs excluding the project's own TA; MCF + one TA as in 2024 | Two TAs, not the project's own | Open |
+| D5 | Standardizer when Phase 2 changes design | Use the conversion as is; recompute with the Phase 1 standardizer | Recompute where data allow; flag | Open |
+| D6 | RQ2 confirmatory test | One-sided pooled *t* test; estimation only; Bayesian | One-sided pooled *t* test plus estimate and CI | Open |
+| D7 | Guard against small original SMDs | None; exclude |SMD| < .2 as a robustness check; use the difference scale | Robustness check only | Open |
+| D8 | Textual ambiguity measure | Count from report tables; agent-coded with human check; both | Both, (a) primary | Open |
+| D9 | Agent correctness check | Who verifies (TA or student), when, and whether students see it before Phase 2 | TA verifies after Phase 2 data are in | Open |
+| D10 | Student-level measures (attitudes, logs, quizzes) | Pursue some under a new protocol; drop for 2026 | Decide after checking IRB and student research committee timelines | Open: needs IRB + committee |
+| D11 | Public roster of opted-in projects | Public now; private until the author list is public | Private until the paper | Open |
+| D12 | Phase 2 deadline and late projects | Include all projects with Phase 2 data by Nov 30; later | Nov 30 (the M5 data deadline) | Open |
