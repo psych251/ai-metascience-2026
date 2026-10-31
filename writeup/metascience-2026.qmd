@@ -373,7 +373,8 @@ N(0.5, 0.35), so replications recover about half the original effect on average,
 heterogeneity; Phase 1 total *N* is 40–150. A project is a rescue if its Phase 1 estimate is not
 significant in the original direction (a stand-in for the subjective score). Phase 2 has a standard
 error 1/1.4 of Phase 1's, and its true effect is the Phase 1 true effect times (1 + *g*), where *g*
-is the true gain in the effect size ratio from better methods.
+is the proportional gain in the true effect from better methods. With replications recovering about
+half the original effect, *g* = 0.3 moves the expected effect size ratio from about 0.50 to 0.65.
 
 ```{r}
 #| label: simulation
@@ -408,7 +409,7 @@ sims |>
   summarise(`Rescues (mean)` = round(mean(n_rescue), 1),
             `P(reject), pooled test` = scales::percent(mean(reject), accuracy = 1),
             `SD of pooled estimate` = sprintf("%.2f", sd(pooled)), .groups = "drop") |>
-  rename(`Projects (k)` = k, `True gain in ratio (g)` = gain) |>
+  rename(`Projects (k)` = k, `True proportional gain (g)` = gain) |>
   knitr::kable(caption = "Rejection rate of the pooled one-sided test of RQ2 (false-positive rate when g = 0, power otherwise), from 1,000 simulated classes per cell.")
 
 sim_summary <- sims |>
@@ -422,8 +423,9 @@ s20n <- filter(sim_summary, k == 20, gain == 0)
 ```
 
 **What this means.** With 20 projects, the pooled test has
-`r scales::percent(s20$power, accuracy = 1)` power to detect a true gain of 0.3 in the effect size
-ratio (for example, from recovering 50% of the original effect to 65%), and the 95% CI on the pooled
+`r scales::percent(s20$power, accuracy = 1)` power to detect a Phase 2 true effect 30% larger than
+Phase 1's (*g* = 0.3: for example, recovering 65% of the original effect instead of 50%, a change of
+about 0.15 in the ratio), and the 95% CI on the pooled
 change will be roughly ±`r sprintf("%.2f", 1.96 * s20$sd)`. RQ2 is therefore best read as an
 estimate with a wide interval rather than a decisive test, and the registration should say so.
 When Phase 2 changes nothing, the raw change averages
