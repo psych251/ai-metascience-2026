@@ -72,9 +72,9 @@ pres.addSection({ title: "Proposal" });
   const steps = [
     ["Original study", "The published effect you chose"],
     ["Phase 1: replication", "As close to the original as you can make it"],
-    ["Phase 2: extension", "1–3 best-practices changes: a rescue if Phase 1 failed, an upgrade if it worked"],
+    ["Phase 2: extension", "1–3 best-practices changes, whether Phase 1 worked or not"],
   ];
-  const bx = [0.6, 3.7, 6.8], by = 1.25, bw = 2.6, bh = 1.5;
+  const bx = [0.6, 3.7, 6.8], by = 1.25, bw = 2.6, bh = 1.3;
   steps.forEach(([head, body], i) => {
     box(s, bx[i], by, bw, bh, `Step ${i + 1} box`);
     s.addText([
@@ -91,16 +91,16 @@ pres.addSection({ title: "Proposal" });
   s.addText([
     { text: "The question", options: { bold: true, fontSize: 16, breakLine: true } },
     { text: "Do changes drawn from Experimentology (measurement, design, sample, checks) make a replication more successful, and recover more of the original effect?", options: { fontSize: 14 } },
-  ], { x: 0.6, y: 3.0, w: 4.5, h: 1.9, valign: "top", margin: 0, paraSpaceAfter: 6, isTextBox: true, objectName: "Question" });
+  ], { x: 0.6, y: 2.9, w: 4.5, h: 2.0, valign: "top", margin: 0, paraSpaceAfter: 6, isTextBox: true, objectName: "Question" });
 
   s.addText([
     { text: "Who's in", options: { bold: true, fontSize: 16, breakLine: true } },
     { text: "Opted-in projects: extra budget, and every opted-in student is an author", options: { fontSize: 14, bullet: true, breakLine: true } },
     { text: "Track 1 only; scientific extensions (Track 2) are excluded", options: { fontSize: 14, bullet: true, breakLine: true } },
     { text: "We expect about 15–20 projects", options: { fontSize: 14, bullet: true } },
-  ], { x: 5.4, y: 3.0, w: 4.0, h: 1.9, valign: "top", margin: 0, paraSpaceAfter: 6, isTextBox: true, objectName: "Who" });
+  ], { x: 5.4, y: 2.9, w: 4.0, h: 2.0, valign: "top", margin: 0, paraSpaceAfter: 6, isTextBox: true, objectName: "Who" });
 
-  s.addNotes("Every project has three studies: the original, your Phase 1 replication, and your Phase 2 extension. Projects that opt in are analysed together. Track 2 projects rerun the original plus a new condition, which is a different kind of study, so they are not included.");
+  s.addNotes("Every project has three studies: the original, your Phase 1 replication, and your Phase 2 extension. Whether we call Phase 2 a rescue or an upgrade, it draws on the same menu of changes, so we analyse all extensions together. Track 2 projects rerun the original plus a new condition, which is a different kind of study, so they are not included.");
 }
 
 // ---------------------------------------------------------------- 3. Outcomes
@@ -109,82 +109,43 @@ pres.addSection({ title: "Proposal" });
   s.addText("What we will measure", { placeholder: "title" });
 
   s.addText([
-    { text: "1  Replication success", options: { bold: true, fontSize: 18, breakLine: true } },
-    { text: "Two TAs independently rate each phase against the original, from 0 to 1. A score of .75 or more counts as a success.", options: { fontSize: 14 } },
-  ], { x: 0.6, y: 1.2, w: 5.2, h: 1.25, valign: "top", margin: 0, paraSpaceAfter: 4, isTextBox: true, objectName: "Outcome 1" });
+    { text: "Replication success", options: { bold: true, fontSize: 18, breakLine: true } },
+    { text: "Course staff rate each phase against the original, from 0 to 1. A score of .75 or more counts as a success.", options: { fontSize: 14 } },
+  ], { x: 0.6, y: 1.2, w: 4.2, h: 1.6, valign: "top", margin: 0, paraSpaceAfter: 4, isTextBox: true, objectName: "Outcome 1" });
 
   s.addText([
-    { text: "2  Effect size ratio", options: { bold: true, fontSize: 18, breakLine: true } },
-    { text: "Your effect divided by the original effect, both as standardized mean differences, for Phase 1 and Phase 2. We compute it by re-running your analysis on the data in your repository.", options: { fontSize: 14 } },
-  ], { x: 0.6, y: 2.55, w: 5.2, h: 1.55, valign: "top", margin: 0, paraSpaceAfter: 4, isTextBox: true, objectName: "Outcome 2" });
+    { text: "Effect size ratio", options: { bold: true, fontSize: 18, breakLine: true } },
+    { text: "Your effect divided by the original effect, both as standardized mean differences. We compute it by re-running your analysis on the data in your repository.", options: { fontSize: 14 } },
+  ], { x: 5.2, y: 1.2, w: 4.2, h: 1.6, valign: "top", margin: 0, paraSpaceAfter: 4, isTextBox: true, objectName: "Outcome 2" });
+
+  s.addText([
+    { text: "How we compare", options: { bold: true, fontSize: 18, breakLine: true } },
+    { text: "Phase 2 against Phase 1, pooled across every project. Boyce et al. (2024) found that 5 of 17 rescues of failed class replications (29%) mostly or fully replicated; we will set our results beside theirs, but the studies differ too much for a formal comparison.", options: { fontSize: 14 } },
+  ], { x: 0.6, y: 3.05, w: 8.8, h: 1.5, valign: "top", margin: 0, paraSpaceAfter: 4, isTextBox: true, objectName: "Comparison" });
 
   s.addText("Also: precision (how much the standard error shrank, beyond what sample size alone explains).", {
-    x: 0.6, y: 4.25, w: 5.2, h: 0.6, fontSize: 12, color: C.text2, valign: "top", margin: 0, isTextBox: true, objectName: "Secondary" });
+    x: 0.6, y: 4.6, w: 8.8, h: 0.35, fontSize: 12, color: C.text2, valign: "top", margin: 0, isTextBox: true, objectName: "Secondary" });
 
-  box(s, 6.3, 1.2, 3.1, 3.65, "Context box");
-  s.addText([
-    { text: "5 of 17", options: { bold: true, fontSize: 48, breakLine: true } },
-    { text: "rescues in Boyce et al. (2024) mostly or fully replicated (29%)", options: { fontSize: 14, breakLine: true } },
-    { text: "Different students, timeline, budget and tools, so our comparison with 2024 is descriptive only.", options: { fontSize: 12, color: C.text2 } },
-  ], { x: 6.5, y: 1.4, w: 2.7, h: 3.25, valign: "middle", margin: 0, paraSpaceAfter: 10, isTextBox: true, objectName: "Context" });
-
-  s.addNotes("Both outcomes follow Veronica Boyce's 2024 rescue paper so that the numbers are comparable. The ratio is 1 if you recover the original effect size exactly, 0 if you find nothing, and negative if the effect goes the other way.");
+  s.addNotes("Both outcomes follow Veronica Boyce's 2024 rescue paper so that the numbers are comparable. The ratio is 1 if you recover the original effect size exactly, 0 if you find nothing, and negative if the effect goes the other way. We do not compare rescues with upgrades: a project is a rescue because its Phase 1 came out low, so it would tend to look better in Phase 2 even if nothing changed.");
 }
 
-// ---------------------------------------------------------------- 4. Caveats
-{
-  const s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Proposal" });
-  s.addText("Two things to know about this design", { placeholder: "title" });
-
-  s.addChart(pres.charts.BAR, [
-    { name: "Raw change", labels: ["Rescues", "Upgrades"], values: [0.13, -0.22] },
-    { name: "Corrected for regression to the mean", labels: ["Rescues", "Upgrades"], values: [-0.02, -0.02] },
-  ], {
-    x: 0.6, y: 1.15, w: 4.9, h: 3.8, objectName: "Regression to the mean chart",
-    barDir: "col", barGapWidthPct: 60,
-    chartColors: ["000000", "A6A6A6"],
-    showTitle: true, title: "Change in effect size ratio when Phase 2 changes nothing (simulated)",
-    titleFontSize: 12, titleColor: "000000", titleFontFace: "+mn-lt",
-    showValue: true, dataLabelPosition: "outEnd", dataLabelFormatCode: "+0.00;-0.00;0.00",
-    dataLabelFontSize: 11, dataLabelColor: "000000", dataLabelFontFace: "+mn-lt",
-    valAxisMinVal: -0.3, valAxisMaxVal: 0.2, valAxisMajorUnit: 0.1, valAxisLabelFormatCode: "+0.0;-0.0;0.0",
-    valAxisLabelFontSize: 10, valAxisLabelColor: "595959", valAxisLabelFontFace: "+mn-lt",
-    catAxisLabelFontSize: 12, catAxisLabelColor: "000000", catAxisLabelFontFace: "+mn-lt",
-    catAxisLabelPos: "low",
-    valGridLine: { color: "D9D9D9", size: 0.5 }, catGridLine: { style: "none" },
-    showLegend: true, legendPos: "b", legendFontSize: 11, legendColor: "000000", legendFontFace: "+mn-lt",
-  });
-
-  s.addText([
-    { text: "Regression to the mean", options: { bold: true, fontSize: 18, breakLine: true } },
-    { text: "Rescues are chosen for low Phase 1 results, so they tend to rise anyway, and upgrades tend to fall. The main test pools all projects, where this cancels; within type we correct for it.", options: { fontSize: 14 } },
-  ], { x: 5.85, y: 1.2, w: 3.55, h: 1.95, valign: "top", margin: 0, paraSpaceAfter: 4, isTextBox: true, objectName: "Caveat 1" });
-
-  s.addText([
-    { text: "Modest power", options: { bold: true, fontSize: 18, breakLine: true } },
-    { text: "With about 20 projects, a 30% larger effect in Phase 2 (say, 65% of the original instead of 50%) is detected only 39% of the time. We report an estimate with an interval, not just yes or no.", options: { fontSize: 14 } },
-  ], { x: 5.85, y: 3.25, w: 3.55, h: 1.75, valign: "top", margin: 0, paraSpaceAfter: 4, isTextBox: true, objectName: "Caveat 2" });
-
-  s.addNotes("Numbers are from 1,000 simulated classes of 20 projects in the planning document. The black bars show the bias you would see if you just compared Phase 2 with Phase 1 within rescues or within upgrades; the grey bars show that the correction removes it.");
-}
-
-// ---------------------------------------------------------------- 5. Choice points
+// ---------------------------------------------------------------- 4. Choice points
 pres.addSection({ title: "Choice points" });
 {
   const s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Choice points" });
   s.addText("Choice points", { placeholder: "title" });
 
   const cards = [
-    ["When do TAs rate Phase 1?", "Proposed: at the midterms this week, before any Phase 2 data exist."],
-    ["Rescue or upgrade: who decides?", "Proposed: the TA rating of Phase 1 (.75 or more = upgrade); your declared track is recorded too."],
-    ["What if Phase 2 changes the design?", "Between → within changes the metric. Proposed: recompute on the Phase 1 scale and flag it."],
-    ["How ambiguous was the original?", "Proposed: count differences and unstated choices in your report, plus an agent count a person checks."],
-    ["Agents checking the original papers", "Proposed: an agent flags statistical inconsistencies; a TA verifies each flag after Phase 2 data are in."],
-    ["Studying us, not the experiments", "Attitudes, agent logs, quizzes: need a new IRB protocol and committee sign-off. Opt-in, never graded."],
+    ["Staff ratings of replication success", "All four of us rate every project: during presentations, or from your report if the data were not in yet."],
+    ["Rescue or upgrade: who decides?", "Is there really a difference?"],
+    ["Ambiguity ratings", "How systematic should they be, and what system do we use?"],
+    ["Agent reproducibility audits", "When do they happen, and who runs and checks them?"],
+    ["Attitudes, chat logs, comprehension quiz", "These study you rather than your experiments, so they require a new IRB protocol."],
   ];
   const cw = 2.8, ch = 1.55, gx = 0.2, gy = 0.2, x0 = 0.6, y0 = 1.15;
   cards.forEach(([q, p], i) => {
-    const x = x0 + (i % 3) * (cw + gx), y = y0 + Math.floor(i / 3) * (ch + gy);
+    const row = Math.floor(i / 3), inRow = row === 0 ? 3 : cards.length - 3;
+    const x = x0 + ((3 - inRow) * (cw + gx)) / 2 + (i % 3) * (cw + gx), y = y0 + row * (ch + gy);
     box(s, x, y, cw, ch, `Choice ${i + 1} box`);
     s.addText([
       { text: q, options: { bold: true, fontSize: 14, breakLine: true } },
@@ -196,7 +157,7 @@ pres.addSection({ title: "Choice points" });
   s.addText("Plan registered on OSF by Nov 13 · Phase 2 data collected the week of Nov 16", {
     x: 0.6, y: 4.62, w: 8.8, h: 0.35, fontSize: 14, bold: true, valign: "middle", margin: 0, isTextBox: true, objectName: "Timeline" });
 
-  s.addNotes("These are the open decisions from the planning document (D2–D5, D8–D10). The first one is urgent: if the TAs are to rate Phase 1 before Phase 2 exists, they rate at the midterms on Wednesday and Friday.");
+  s.addNotes("These are the decisions still open before we register. Ratings: every project gets a rating for each phase from all four of us, made as soon as that phase's data exist. The last card is separate from the main study: anything that studies you directly needs its own IRB protocol and consent, and would never be graded.");
 }
 
 (async () => {
