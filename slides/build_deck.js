@@ -1,7 +1,7 @@
 const pptxgen = require("pptxgenjs");
 const { applyTheme } = require("/root/.claude/skills/synced/61998724-611c-41d8-94f2-03edd7a4fb28_67db12f2-f87f-4e7d-8318-bd68def116d6/pptx/scripts/apply_theme.js");
 
-const OUT = process.argv[2] || "/home/user/ai-metascience-2026/slides/class-metascience-plan.pptx";
+const OUT = process.argv[2] || "/home/user/ai-metascience-2026/slides/ai-policy-and-metascience.pptx";
 
 const THEME = {
   name: "Psych 251 plain",
@@ -18,56 +18,98 @@ const THEME = {
 const pres = new pptxgen();
 pres.layout = "LAYOUT_16x9"; // 10 x 5.625 in
 pres.author = "Michael C. Frank";
-pres.title = "Class metascience 2026: proposal and choice points";
+pres.title = "AI policy and the class metascience project";
 pres.theme = { headFontFace: THEME.headFontFace, bodyFontFace: THEME.bodyFontFace };
 const C = pres.SchemeColor;
-
-const FOOTER = "Psych 251 · class metascience 2026";
 
 pres.defineSlideMaster({
   title: "TITLE",
   background: { color: "FFFFFF" },
   objects: [
-    { placeholder: { options: { name: "title", type: "title", x: 0.6, y: 1.2, w: 8.8, h: 1.9,
+    { placeholder: { options: { name: "title", type: "title", x: 0.6, y: 1.0, w: 8.8, h: 1.9,
         fontSize: 40, bold: true, color: C.text1, valign: "bottom", align: "left", margin: 0 }, text: "" } },
-    { placeholder: { options: { name: "body", type: "body", x: 0.6, y: 3.35, w: 8.8, h: 1.2,
+    { placeholder: { options: { name: "body", type: "body", x: 0.6, y: 3.15, w: 8.8, h: 1.0,
         fontSize: 18, color: C.text2, valign: "top", margin: 0 }, text: "" } },
   ],
 });
 
-pres.defineSlideMaster({
-  title: "CONTENT",
+// One content layout per section, differing only in the footer, so each section stands alone.
+const contentLayout = (title, footer) => pres.defineSlideMaster({
+  title,
   background: { color: "FFFFFF" },
   objects: [
     { placeholder: { options: { name: "title", type: "title", x: 0.6, y: 0.3, w: 8.8, h: 0.7,
         fontSize: 30, bold: true, color: C.text1, valign: "middle", align: "left", margin: 0 }, text: "" } },
-    { text: { text: FOOTER, options: { x: 0.6, y: 5.2, w: 6, h: 0.25, fontSize: 10,
+    { text: { text: footer, options: { x: 0.6, y: 5.2, w: 6, h: 0.25, fontSize: 10,
         color: C.text2, margin: 0, isTextBox: true } } },
   ],
   slideNumber: { x: 8.9, y: 5.2, w: 0.5, h: 0.25, fontSize: 10, color: C.text2, align: "right", margin: 0 },
 });
+contentLayout("CONTENT_POLICY", "Psych 251 · AI policy");
+contentLayout("CONTENT_META", "Psych 251 · class metascience 2026");
 
 // Thin black outline boxes are the deck's one visual motif.
 const box = (slide, x, y, w, h, name) =>
   slide.addShape(pres.shapes.RECTANGLE, { x, y, w, h, objectName: name,
     fill: { color: C.background1 }, line: { color: C.text1, width: 1 } });
 
-// ---------------------------------------------------------------- 1. Title
-pres.addSection({ title: "Proposal" });
+// ---------------------------------------------------------------- Title
+pres.addSection({ title: "AI policy" });
 {
-  const s = pres.addSlide({ masterName: "TITLE", sectionTitle: "Proposal" });
-  s.addText("Do best-practices extensions improve replications?", { placeholder: "title" });
+  const s = pres.addSlide({ masterName: "TITLE", sectionTitle: "AI policy" });
+  s.addText("AI policy and the class metascience project", { placeholder: "title" });
   s.addText([
-    { text: "Psych 251 class metascience project, 2026", options: { breakLine: true } },
-    { text: "Proposal and choice points · Monday, November 2" },
+    { text: "Psych 251 · Monday, November 2", options: { breakLine: true } },
+    { text: "1  Suggested AI policies and norms    2  The class metascience project" },
   ], { placeholder: "body" });
-  s.addNotes("Most of you have opted in to the metascience project. Today: what we propose to study with your projects, and the choices we still have to make before we register the plan on November 13.");
+  s.addText("AI use: these slides were drafted with Claude Code (Anthropic) from our metascience planning document and the post “My lab’s AI policies and norms” (October 2026), at Mike’s direction.", {
+    x: 0.6, y: 4.55, w: 8.8, h: 0.55, fontSize: 11, color: C.text2, valign: "top", margin: 0,
+    isTextBox: true, objectName: "AI disclosure" });
+  s.addNotes("Two separate topics today. First, some suggestions for how to use AI in your work, adapted from the policies and norms I wrote up for my lab. Second, the class metascience project that most of you have opted in to.");
 }
 
-// ---------------------------------------------------------------- 2. Design
+// Rows of a bold lead-in and an explanation: the layout for both policy slides.
+const ruleRows = (s, rows, prefix) => rows.forEach(([lead, text], i) => {
+  const y = 1.2 + i * 0.76;
+  s.addText(lead, { x: 0.6, y, w: 2.75, h: 0.62, fontSize: 15, bold: true, valign: "top",
+    margin: 0, isTextBox: true, objectName: `${prefix} ${i + 1} lead` });
+  s.addText(text, { x: 3.55, y, w: 5.85, h: 0.62, fontSize: 14, valign: "top",
+    margin: 0, isTextBox: true, objectName: `${prefix} ${i + 1} text` });
+});
+
+// ---------------------------------------------------------------- Policies
 {
-  const s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Proposal" });
-  s.addText("The proposal", { placeholder: "title" });
+  const s = pres.addSlide({ masterName: "CONTENT_POLICY", sectionTitle: "AI policy" });
+  s.addText("Suggested AI policies", { placeholder: "title" });
+  ruleRows(s, [
+    ["You write the text", "Your proposal and report are written by you. Agents can write code, documentation and admin."],
+    ["Always disclose", "Every submission has an AI use statement, even if you used none: what for, and which model and version."],
+    ["Agent review last", "After your own read-through, have an agent review your work. Consider every suggestion; keep what you can defend."],
+    ["Protect participants", "No Prolific IDs or other identifiers in a commercial model. Free text, audio and video only under a no-training agreement."],
+    ["Respect others’ work", "Don’t put a manuscript you are reviewing, or a classmate’s work, into a model unless that is allowed."],
+  ], "Policy");
+  s.addNotes("These are adapted from my lab's policies. The first two are already course policy. Agent review is new: do it after your own review, not instead of it. On data: your anonymized CSVs are fine; anything with identifiers is not.");
+}
+
+// ---------------------------------------------------------------- Norms
+{
+  const s = pres.addSlide({ masterName: "CONTENT_POLICY", sectionTitle: "AI policy" });
+  s.addText("Suggested AI norms", { placeholder: "title" });
+  ruleRows(s, [
+    ["Engineer it", "Version control, tests for reusable code, an organized project, clear documentation (Poldrack, Better Code, Better Science)."],
+    ["Mark AI text you share", "Quote it when you paste it into Slack, so nobody mistakes it for your own words."],
+    ["Don’t send slop", "Condense before you share, by hand or with AI. If something is unpolished, say so."],
+    ["Read the paper first", "Struggle with it yourself before asking a model about it; you will remember more."],
+    ["Avoid the slop cliff", "Keep understanding your own project: check details, ask follow-ups, and treat a surprising answer as a reason to dig in."],
+  ], "Norm");
+  s.addNotes("Norms are softer than policies: habits that keep you in control of your work. The slop cliff is the point where a project has moved faster than your understanding of it, and you can no longer explain or defend what it does.");
+}
+
+// ---------------------------------------------------------------- Metascience: design
+pres.addSection({ title: "Metascience" });
+{
+  const s = pres.addSlide({ masterName: "CONTENT_META", sectionTitle: "Metascience" });
+  s.addText("Class metascience: the proposal", { placeholder: "title" });
 
   const steps = [
     ["Original study", "The published effect you chose"],
@@ -105,7 +147,7 @@ pres.addSection({ title: "Proposal" });
 
 // ---------------------------------------------------------------- 3. Outcomes
 {
-  const s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Proposal" });
+  const s = pres.addSlide({ masterName: "CONTENT_META", sectionTitle: "Metascience" });
   s.addText("What we will measure", { placeholder: "title" });
 
   s.addText([
@@ -130,9 +172,8 @@ pres.addSection({ title: "Proposal" });
 }
 
 // ---------------------------------------------------------------- 4. Choice points
-pres.addSection({ title: "Choice points" });
 {
-  const s = pres.addSlide({ masterName: "CONTENT", sectionTitle: "Choice points" });
+  const s = pres.addSlide({ masterName: "CONTENT_META", sectionTitle: "Metascience" });
   s.addText("Choice points", { placeholder: "title" });
 
   const cards = [
