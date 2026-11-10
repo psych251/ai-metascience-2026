@@ -45,7 +45,7 @@ settled on November 2 are marked as decided there.
 
 | Tool and model | What it was used for | How the output was checked |
 |---|---|---|
-| Claude Code | First draft of this planning document's structure, text and analysis code, including the sensitivity simulation; read Boyce et al. (2024) and the `langcog/251-rescue-projects` code to match its definitions; revised after staff discussion on November 2 | *To be completed: MCF review of every section and of the simulation* |
+| Claude Code | First draft of this planning document's structure, text and analysis code, including the sensitivity simulation; read Boyce et al. (2024) and the `langcog/251-rescue-projects` code to match its definitions; revised after staff discussion on November 2 and TA comments on November 10 | *To be completed: MCF review of every section and of the simulation* |
 
 # Overview
 
@@ -65,10 +65,14 @@ We ask whether these extensions change what a replication finds.
 
 - **RQ1, replication success.** Across all projects, is Phase 2 judged a successful replication of
   the original more often than Phase 1?
-- **RQ2, effect size.** Across all projects, is the Phase 2 effect, expressed as a ratio to the
-  original effect, larger than the Phase 1 effect?
-- **Secondary: precision.** How much smaller is the Phase 2 standard error than Phase 1's, and how
-  much of that is explained by sample size alone?
+- **RQ2, effect size.** Across all projects, does the Phase 2 estimate, expressed as a ratio to the
+  original effect, differ from the Phase 1 estimate? This is a question about estimation, not about
+  saving effects. Better measurement can raise a standardized effect by reducing measurement error,
+  but if the true effect is small, a precise Phase 2 that finds a small effect is a good outcome.
+- **RQ3, precision.** Across all projects, how much smaller is the Phase 2 standard error than
+  Phase 1's, beyond what the change in sample size alone predicts?
+- Only RQ1 uses the language of replication "success", which means agreement with the original
+  finding, as in Boyce et al. (2023, 2024).
 - **Context.** How do the 2026 results compare with the 17 rescues in Boyce et al. (2024)? This is
   descriptive only (see [Comparison with Boyce et al. (2024)](#comparison-boyce)).
 
@@ -141,6 +145,10 @@ this, and we record what is needed to check and correct for them:
 - Scale and procedure from Boyce et al. (2024): each phase is rated on 0 / .25 / .5 / .75 / 1 for
   how well it replicates the original on the key result, considering direction, magnitude and
   significance together rather than any single cutoff. **Success = ≥ .75** ("mostly" or "fully").
+- **Rubric and calibration.** Raters use the written anchors for each scale point from Boyce et al.
+  (2023) *[to add: anchor text from V. Boyce]*, with one worked example per level drawn from past
+  class projects. Before rating Phase 1, all four raters independently rate 2–3 past projects from
+  the Boyce et al. (2023) sample and compare their ratings with the published scores.
 - **Raters.** All four course staff (MCF and the three TAs) rate every project independently. A
   project's score for a phase is the mean of the four ratings. We report inter-rater agreement
   (intraclass correlation, and the Spearman correlation of each pair as in Boyce et al., 2024) and
@@ -172,8 +180,8 @@ this, and we record what is needed to check and correct for them:
 
 - **Metric.** Standardized mean difference (SMD), using the conversions in
   `langcog/251-rescue-projects/code/helper/parse_stats.R` so that the numbers are comparable with
-  Boyce et al. (2023, 2024). Signs are aligned so that the original effect is positive and an
-  effect in the opposite direction is negative.
+  Boyce et al. (2023, 2024), with Hedges' small-sample correction. Signs are aligned so that the
+  original effect is positive and an effect in the opposite direction is negative.
 - **Standardizer caveat [D5].** Those conversions give *d* for between-participant tests and
   *d*<sub>z</sub> for within-participant tests. A Phase 2 that changes the design (for example
   between → within) therefore changes the standardizer as well as the estimate. Proposed: in that
@@ -182,7 +190,7 @@ this, and we record what is needed to check and correct for them:
 - **Effect size ratio (primary for RQ2).** For each phase, *r* = SMD<sub>phase</sub> /
   SMD<sub>original</sub>. *r* = 1 means the original effect size was recovered; *r* = 0 means no
   effect; *r* < 0 means the opposite direction.
-- **Precision (secondary).** SE ratio = SE<sub>Phase 2</sub> / SE<sub>Phase 1</sub> of the SMD,
+- **Precision (RQ3).** SE ratio = SE<sub>Phase 2</sub> / SE<sub>Phase 1</sub> of the SMD,
   compared with the ratio expected from sample size alone, √(*N*<sub>1</sub>/*N*<sub>2</sub>). The
   part of the precision gain not explained by *N* is attributable to the other changes.
 - **Statistical consistency (secondary, as in Boyce et al. 2024).** *p*-original (Mathur &
@@ -261,10 +269,20 @@ success_table <- function(proj) {
 
 # RQ2: change in effect size ratio (Phase 2 minus Phase 1), pooled over all projects. The raw
 # change is confirmatory; the change beyond the empirical-Bayes prediction is the robustness check.
+# Inverse-variance-weighted (random-effects) pooled change, so that noisy projects count for less.
+# The sampling variance of r2 - r1 treats the original SMD as fixed.
+weighted_change <- function(proj) {
+  se_change <- sqrt(proj$se1^2 + proj$se2^2) / abs(proj$d_orig)
+  m  <- dl_meta(proj$change, se_change)
+  se <- sqrt(1 / sum(1 / (se_change^2 + m$tau2)))
+  tibble(n = nrow(proj), mean = m$mu, low = m$mu - 1.96 * se, high = m$mu + 1.96 * se)
+}
+
 ratio_table <- function(proj) {
   bind_rows(
     mean_ci(proj$change)    |> mutate(Estimate = "Change in ratio (confirmatory)"),
-    mean_ci(proj$change_eb) |> mutate(Estimate = "Change beyond regression to the mean (robustness)")
+    mean_ci(proj$change_eb) |> mutate(Estimate = "Change beyond regression to the mean (robustness)"),
+    weighted_change(proj)   |> mutate(Estimate = "Inverse-variance-weighted change (robustness)")
   ) |>
     transmute(Estimate, k = n, Mean = sprintf("%.2f", mean),
               `95% CI` = if_else(is.na(low), "", sprintf("[%.2f, %.2f]", low, high)))
@@ -301,8 +319,9 @@ ratio_plot <- function(proj) {
 ## RQ2: effect size ratio {#rq2}
 
 - **Primary estimate and test.** The mean, across all included projects, of the change in effect
-  size ratio, *r*<sub>2</sub> − *r*<sub>1</sub>, with a 95% CI. Confirmatory hypothesis: the mean
-  change is greater than 0 (one-sided *t* test, α = .05) **[D6]**. Given the expected number of
+  size ratio, *r*<sub>2</sub> − *r*<sub>1</sub>, with a 95% CI. Prediction: the mean change is
+  greater than 0, because better measurement reduces the attenuation of standardized effects
+  (one-sided *t* test, α = .05) **[D6]**. Given the expected number of
   projects, this is primarily an estimate with a wide interval (see
   [Sensitivity analysis](#sensitivity)).
 - **Why pooled.** If Phase 2 changed nothing, the Phase 1 and Phase 2 estimates would both be
@@ -321,16 +340,28 @@ ratio_plot <- function(proj) {
 - **Interpretation.** Changes that make measurement more reliable are expected to *increase* the
   standardized effect, because measurement error inflates the standardizer. Changes to sample size
   alone are not: they change precision, not the expected effect. The change-category analysis
-  below (exploratory) looks at this directly.
+  below (exploratory) looks at this directly. A Phase 2 whose ratio stays low with a narrow
+  interval is evidence that the true effect is small, and we will describe it that way, not as a
+  failed rescue.
+- **Sample size and noise.** A smaller sample makes an estimate noisier, not larger on average:
+  small samples inflate effects only when results are filtered on significance, and every included
+  project is analysed whatever its result. We report the Phase 2 / Phase 1 sample-size ratio, use
+  Hedges' correction, and add an inverse-variance-weighted pooled change as a robustness check, so
+  that noisy projects count for less. (Sample size does affect RQ1, because the subjective score
+  takes significance into account.)
 - **Robustness to small originals.** Ratios are unstable when the original SMD is small. We report
   the median change and a version excluding projects with |SMD<sub>original</sub>| < .2 **[D7]**,
   and the same analysis on the SMD scale (*d*<sub>2</sub> − *d*<sub>1</sub>, random-effects
   meta-analysis).
 
-## Secondary: precision
+## RQ3: precision
 
-- Mean log SE ratio (Phase 2 / Phase 1) with 95% CI, and the mean log of the ratio expected from
-  sample size alone. Their difference estimates the precision gain from changes other than *N*.
+- **Primary estimate.** The mean, across projects, of the log SE ratio (Phase 2 / Phase 1) minus
+  the log of the ratio expected from sample size alone, √(*N*<sub>1</sub>/*N*<sub>2</sub>), with a
+  95% CI: the precision gain from changes other than *N*. Values below 0 mean Phase 2 was more
+  precise than its sample size alone would predict.
+- Also reported: the observed SE ratio and the ratio expected from *N*, each as a geometric mean.
+  The observed ratio mostly reflects sample size, so it is descriptive only.
 
 ## Comparison with Boyce et al. (2024) {#comparison-boyce}
 
@@ -375,6 +406,21 @@ All exploratory and labelled as such; *k* is too small for confirmatory moderato
    verifies them.
 4. The Boyce et al. (2023, 2024) project covariates, as correlations with Phase 1 and Phase 2
    scores.
+
+## Possible second aim: reproducibility with and without a researcher **[D14]**
+
+Problem Set 3 (due November 22) has two students per paper reproduce a recent open-data article
+with an agent under their direction, within 4 hours, and give a verdict on each target outcome.
+Running a fully automated agent on the same papers, with no student involved, would compare
+researcher-directed with fully automated reproducibility on the same corpus.
+
+- The automated runs use a fixed prompt and model, are specified before November 22, and are
+  completed and frozen before anyone looks at the student verdicts.
+- Outcome: agreement between the automated and student verdicts on each target outcome, and the
+  proportion of outcomes each reproduced.
+- The paper-level verdicts are about the papers. Student transcripts and time accounting are data
+  about students, so analysing them falls under the same new IRB protocol as the measures below.
+- This addresses a different question from RQ1–3, so it may fit better as a companion paper.
 
 ## Measures that need a separate protocol (not part of this registration)
 
@@ -577,14 +623,17 @@ Pooled one-sided test: *t*(`r pooled_test$parameter`) = `r sprintf("%.2f", poole
 ratio_plot(proj)
 ```
 
-## Secondary: precision
+## RQ3: precision
 
 ```{r}
 #| label: precision
+gain_beyond_n <- mean_ci(log(proj$se_ratio) - log(proj$se_ratio_from_n))
 proj |>
   summarise(Projects = n(),
             `Observed SE ratio (geometric mean)` = sprintf("%.2f", exp(mean(log(se_ratio)))),
-            `Expected from N alone` = sprintf("%.2f", exp(mean(log(se_ratio_from_n))))) |>
+            `Expected from N alone` = sprintf("%.2f", exp(mean(log(se_ratio_from_n)))),
+            `Beyond N (ratio, 95% CI)` = sprintf("%.2f [%.2f, %.2f]", exp(gain_beyond_n$mean),
+                                                 exp(gain_beyond_n$low), exp(gain_beyond_n$high))) |>
   knitr::kable(caption = "Phase 2 / Phase 1 standard error of the key SMD.")
 ```
 
@@ -617,4 +666,5 @@ proj |>
 | D10 | Attitudes, chat logs, comprehension quiz | Pursue some under a new protocol; drop for 2026 | Decide after checking IRB and student research committee timelines | Open: needs new IRB |
 | D11 | Public roster of opted-in projects | Public now; private until the author list is public | Private until the paper | Open |
 | D12 | Phase 2 deadline and late projects | Include all projects with Phase 2 data by Nov 30; later | Nov 30 (the M5 data deadline) | Open |
+| D14 | PS3 reproducibility as a second aim | Leave out; add as a second aim here; companion paper | Add a fully automated baseline, frozen before student verdicts are read; decide where it is reported | Open, **needs specifying by Nov 22** |
 | D13 | Scope: one year or a cumulative series | Report 2026 alone; register 2026 as wave 1 of a series that pools future years with the same two-phase design | Report 2026 now and register it as wave 1; earlier years are not pooled because the design is new | Open |
